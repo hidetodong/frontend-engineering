@@ -1,0 +1,10 @@
+{
+    "presets":[
+        [
+            "@babel/preset-env",
+            {
+                "modules":false // 不要转换模块写法
+            }
+        ]
+    ]
+}

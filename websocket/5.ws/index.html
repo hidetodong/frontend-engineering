@@ -1,0 +1,31 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-05-15 16:51:21
+ * @LastEditTime: 2022-05-15 16:58:29
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /websocket/5.ws/index.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>websocket</title>
+</head>
+<body>
+<div id="clock"></div>
+    <script>
+        let socket = new WebSocket('ws://localhost:8888')
+        socket.onopen = function(){
+            console.log('服务开启');
+        }
+
+        socket.onmessage = function (event){
+            console.log(event.data)
+        }
+    </script>
+</body>
+</html>
