@@ -1,0 +1,24 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/Users/xingzidong/Documents/PrivateCode.nosync/frontend-engineering/vue3"
+  },
+  "1 info pnpm": {
+    "err": {
+      "name": "Error",
+      "message": "not found: instal",
+      "code": "ENOENT",
+      "stack": "Error: not found: instal\n    at getNotFoundError (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:41702:51)\n    at Function.whichSync [as sync] (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:41779:13)\n    at getCommandAbsolutePathSync (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:43344:44)\n    at default_1 (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:43353:32)\n    at /Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:178377:39"
+    }
+  },
+  "2 error pnpm": {
+    "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+    "prefix": "/Users/xingzidong/Documents/PrivateCode.nosync/frontend-engineering/vue3",
+    "err": {
+      "name": "pnpm",
+      "message": "not found: instal",
+      "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+      "stack": "Error: not found: instal\n    at getNotFoundError (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:41702:51)\n    at Function.whichSync [as sync] (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:41779:13)\n    at getCommandAbsolutePathSync (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:43344:44)\n    at default_1 (/Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:43353:32)\n    at /Users/xingzidong/.nvm/versions/node/v16.13.1/lib/node_modules/pnpm/dist/pnpm.cjs:178377:39"
+    }
+  }
+}

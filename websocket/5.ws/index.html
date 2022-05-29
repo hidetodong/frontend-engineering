@@ -1,7 +1,7 @@
 <!--
  * @Author: hidetodong
  * @Date: 2022-05-15 16:51:21
- * @LastEditTime: 2022-05-15 16:58:29
+ * @LastEditTime: 2022-05-29 09:30:43
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /websocket/5.ws/index.html
@@ -21,6 +21,7 @@
         let socket = new WebSocket('ws://localhost:8888')
         socket.onopen = function(){
             console.log('服务开启');
+            socket.send('你好')
         }
 
         socket.onmessage = function (event){

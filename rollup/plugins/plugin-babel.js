@@ -4,6 +4,9 @@ export default function (pluginOptions) {
         options(){
             console.log(pluginOptions)
             return null
+        },
+        resolveId(id){
+            
         }
     }
 }
