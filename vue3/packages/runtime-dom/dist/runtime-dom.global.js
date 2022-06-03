@@ -1,8 +1,22 @@
-var VueReactivity = (() => {
+var VueRuntimeDOM = (() => {
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -17,16 +31,125 @@ var VueReactivity = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // packages/reactivity/src/index.ts
+  // packages/runtime-dom/src/index.ts
   var src_exports = {};
   __export(src_exports, {
     computed: () => computed,
+    createVNode: () => createVNode,
+    default: () => src_default,
     effect: () => effect,
+    h: () => h,
     reactive: () => reactive,
     ref: () => ref,
     toRef: () => toRef,
     watch: () => watch
   });
+
+  // packages/runtime-dom/src/nodeOps.ts
+  var nodeOps = {
+    createElement(tagName) {
+      return document.createElement(tagName);
+    },
+    setElementText(element, text) {
+      element.textContent = text;
+    },
+    createTextNode(text) {
+      return document.createTextNode(text);
+    },
+    setText(element, text) {
+      element.nodeValue = text;
+    },
+    insert(element, container, anchor = null) {
+      container.insertBefore(element, anchor);
+    },
+    remove(child) {
+      const parent = child.parentNode;
+      if (parent) {
+        parent.removeChild(child);
+      }
+    },
+    querySelector(selectors) {
+      return document.querySelector(selectors);
+    },
+    parentNode(child) {
+      return child.parentNode;
+    },
+    nextSibling(child) {
+      return child.nextSibling;
+    }
+  };
+
+  // packages/runtime-dom/src/patch-prop/patchAttr.ts
+  function patchAttr(el, key, nextValue) {
+    if (nextValue === null) {
+      el.removeAttribute(key);
+    } else {
+      el.setAttribute(key, nextValue);
+    }
+  }
+
+  // packages/runtime-dom/src/patch-prop/patchClass.ts
+  function patchClass(el, nextValue) {
+    if (nextValue === null) {
+      el.removeAttribute("class");
+    } else {
+      el.className = nextValue;
+    }
+  }
+
+  // packages/runtime-dom/src/patch-prop/patchEvent.ts
+  function createInvokers(preValue) {
+    const invoker = (e) => {
+      invoker.value(e);
+    };
+    invoker.value = preValue;
+    return invoker;
+  }
+  function patchEvent(el, eventName, nextValue) {
+    const invokers = el._vei || (el._vei = {});
+    const existingInvoker = invokers[eventName];
+    if (existingInvoker && nextValue) {
+      existingInvoker.value = nextValue;
+    } else {
+      const eName = eventName.slice(2).toLowerCase();
+      if (!nextValue) {
+        const invoker = createInvokers(nextValue);
+        el.addEventListener(eName, invoker);
+        invokers[eventName] = invoker;
+      } else if (existingInvoker) {
+        el.removeEventListener(eName, existingInvoker);
+        invokers[eventName] = null;
+      }
+    }
+  }
+
+  // packages/runtime-dom/src/patch-prop/patchStyle.ts
+  function patchStyle(el, preValue, nextValue) {
+    const style = el.style;
+    for (let key in nextValue) {
+      style[key] = nextValue[key];
+    }
+    if (preValue) {
+      for (let key in preValue) {
+        if (nextValue[key] === null) {
+          style[key] = null;
+        }
+      }
+    }
+  }
+
+  // packages/runtime-dom/src/patchProp.ts
+  var patchProp = (el, key, preValue, nextValue) => {
+    if (key === "class") {
+      patchClass(el, nextValue);
+    } else if (key === "style") {
+      patchStyle(el, preValue, nextValue);
+    } else if (/on[^a-z]/.test(key)) {
+      patchEvent(el, key, nextValue);
+    } else {
+      patchAttr(el, key, nextValue);
+    }
+  };
 
   // packages/reactivity/src/effect.ts
   var activeEffect = void 0;
@@ -137,6 +260,12 @@ var VueReactivity = (() => {
   };
   var isFunction = (value) => {
     return typeof value === "function";
+  };
+  var isString = (value) => {
+    return typeof value === "string";
+  };
+  var isArray = (value) => {
+    return Array.isArray(value);
   };
 
   // packages/reactivity/src/baseHandler.ts
@@ -301,6 +430,52 @@ var VueReactivity = (() => {
       }
     }
   };
+
+  // packages/runtime-core/src/createVNode.ts
+  function createVNode(type, props = null, children = null) {
+    let shapeFlag = isString(type) ? ShapeFlags.ELEMENT : 0;
+    const vnode = {
+      type,
+      props,
+      children,
+      key: props && props.key,
+      el: null,
+      shapeFlag
+    };
+    if (children) {
+      let temp = 0;
+      if (isArray(children)) {
+        temp = ShapeFlags.ARRAY_CHILDREN;
+      } else {
+        children = String(children);
+      }
+      vnode.shapeFlag |= shapeFlag;
+    }
+    console.log(vnode);
+    return vnode;
+  }
+  var ShapeFlags = /* @__PURE__ */ ((ShapeFlags2) => {
+    ShapeFlags2[ShapeFlags2["ELEMENT"] = 1] = "ELEMENT";
+    ShapeFlags2[ShapeFlags2["FUNCTIONAL_COMPONENT"] = 2] = "FUNCTIONAL_COMPONENT";
+    ShapeFlags2[ShapeFlags2["STATEFUL_COMPONENT"] = 4] = "STATEFUL_COMPONENT";
+    ShapeFlags2[ShapeFlags2["TEXT_CHILDREN"] = 8] = "TEXT_CHILDREN";
+    ShapeFlags2[ShapeFlags2["ARRAY_CHILDREN"] = 16] = "ARRAY_CHILDREN";
+    ShapeFlags2[ShapeFlags2["SLOTS_CHILDREN"] = 32] = "SLOTS_CHILDREN";
+    ShapeFlags2[ShapeFlags2["TELEPORT"] = 64] = "TELEPORT";
+    ShapeFlags2[ShapeFlags2["SUSPENSE"] = 128] = "SUSPENSE";
+    ShapeFlags2[ShapeFlags2["COMPONENT_SHOULD_KEEP_ALIVE"] = 256] = "COMPONENT_SHOULD_KEEP_ALIVE";
+    ShapeFlags2[ShapeFlags2["COMPONENT_KEPT_ALIVE"] = 512] = "COMPONENT_KEPT_ALIVE";
+    ShapeFlags2[ShapeFlags2["COMPONENT"] = 6] = "COMPONENT";
+    return ShapeFlags2;
+  })(ShapeFlags || {});
+
+  // packages/runtime-core/src/h.ts
+  function h() {
+  }
+
+  // packages/runtime-dom/src/index.ts
+  var renderOptions = __spreadValues({ patchProp }, nodeOps);
+  var src_default = renderOptions;
   return __toCommonJS(src_exports);
 })();
-//# sourceMappingURL=reactivity.global.js.map
+//# sourceMappingURL=runtime-dom.global.js.map

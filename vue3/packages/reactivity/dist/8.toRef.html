@@ -1,0 +1,81 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-01 21:24:43
+ * @LastEditTime: 2022-06-01 21:29:55
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/8.toRef.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-01 21:06:52
+ * @LastEditTime: 2022-06-01 21:20:01
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/7.ref.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-01 20:02:30
+ * @LastEditTime: 2022-06-01 20:34:38
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/6.watch.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-05-29 16:11:47
+ * @LastEditTime: 2022-05-29 16:21:08
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/5.computed.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
+    <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
+    <script src="./reactivity.global.js"></script>
+    <div id="app"></div>
+    <script>
+      // 缓存代理结果
+
+      // watch 虽然也是一个composition api 但是没有放到响应式模块中
+      const { effect, reactive, computed, ref ,toRefs,toRef} = VueReactivity;
+
+      let obj = { flag: true, name: "zf", age: 30, address: {} };
+
+      const state = reactive({
+        firstName: "Xing",
+        age: 30,
+        lastName: "Zidong",
+      });
+
+
+      let firstName = toRef(state,'name') //转换成ref
+      let age = toRef(state,'age') // ref的原理
+
+      // name.value = state.name
+      // age.value = state.age
+
+      effect(()=>{
+        app.innerHTML = state.firstName + state.age
+      })
+
+      setTimeout(()=>{
+        firstName.value = 1000
+      },1000)
+      
+    </script>
+  </body>
+</html>

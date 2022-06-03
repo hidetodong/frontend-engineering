@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script> -->
+    <script src="./runtime-dom.global.js"></script>
+    <div id="app"></div>
+    <script>
+
+        const { h, createVNode }  = VueRuntimeDOM
+
+        // 函数的重载函数 不同的参数 决定了不同的功能
+        // 1) 元素 / 内容
+        // 2） 元素 / 属性 / 内容
+        // 3） 元素 / 属性 /多个儿子
+        // 4） 元素 / 儿子 ｜ 元素
+        // 5） 元素 多个儿子
+        // const { render,h } = VueRuntimeDOM
+
+        // 这个渲染器提供给用户，方便扩展
+        // const { render,createApp } = createRenderer({
+        //     // patchProp // 如何渲染
+        //     // ...nodeOps // 节点操作
+        //     createElement(element){
+        //         console.log(element)
+        //         return document.createElement(element)
+        //     },
+        //     setElementText(element,text){
+        //         console.log(element,text)
+        //         element.textContent = text
+        //     },
+        //     insert(element,container){
+        //         container.appendChild(element)
+        //     }
+        // })
+
+        // 渲染器就是为了用户方便拓展 vue中内置了节点操作可以直接使用
+        // render(h('h1','hello world'),app)
+
+        console.log(createVNode('h1','hl '))
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-05-29 16:11:47
+ * @LastEditTime: 2022-05-29 16:21:08
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/5.computed.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="../../../node_modules/@vue/reactivity/dist//reactivity.global.js"></script>
+    <!-- <script src="./reactivity.global.js"></script> -->
+    <div id="app"></div>
+    <script>
+        // 缓存代理结果
+        const  { effect ,reactive,computed }  = VueReactivity
+
+        let obj = {flag:true,name:'zf',age:30,address:{}}
+
+        const state = reactive({ firstName:'Xing' ,lastName:'Zidong'})
+
+        let fullName = computed({ // dirty
+            get(){
+                return state.firstName + state.lastName
+            },
+            set(value){
+                console.log(value)
+            }
+        })
+    
+        effect(()=>{
+            app.innerHTML = fullName.value
+        })
+
+        // 包装
+        console.log(fullName.value)
+
+        setTimeout(()=>{
+            state.lastName = 'ZIZI'
+        },1000)
+
+        // 计算属性就是一个effect函数 当取值的时候 会访问firstName和lastName的值 会让firstName和lastName来收集当前的computed
+        // 计算属性也可以收集effect的计算属性
+    </script>
+</body>
+</html>

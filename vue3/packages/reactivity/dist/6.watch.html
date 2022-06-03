@@ -1,0 +1,58 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-01 20:02:30
+ * @LastEditTime: 2022-06-03 20:10:39
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/6.watch.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-05-29 16:11:47
+ * @LastEditTime: 2022-05-29 16:21:08
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/reactivity/dist/5.computed.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
+    <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
+    <script src="./reactivity.global.js"></script>
+    <div id="app"></div>
+    <script>
+        // 缓存代理结果
+
+        // watch 虽然也是一个composition api 但是没有放到响应式模块中
+        const  { effect ,reactive,computed ,watch}  = VueReactivity
+
+        let obj = {flag:true,name:'zf',age:30,address:{}}
+
+        const state = reactive({ firstName:'Xing' ,age:30,lastName:'Zidong'})
+        
+        // 1.数据变化了会重新执行watch的回调 数据响应式数据 effect
+        // 2.如果监控的是一个对象，那么对象是无法拿到新值和老值的 vue2也一样
+        // 3.vue3中watch监控的是一个对象的时候默认会深度监控
+        // 4.如果监控的是某个属性的话要写成函数的形式 (默认会递归访问 性能差不建议使用)
+        watch(state ,(newValue,oldValue)=>{
+            console.log(newValue,oldValue,newValue === oldValue)
+        })
+
+        setTimeout(()=>{
+            state.age++
+        },1000)
+
+        // 什么时候使用watch？
+        
+    </script>
+</body>
+</html>
