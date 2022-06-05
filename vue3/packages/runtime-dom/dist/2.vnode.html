@@ -1,0 +1,35 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-05 09:54:28
+ * @LastEditTime: 2022-06-05 10:12:31
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/runtime-dom/dist/2.vnode.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
+    <!-- <script src="./runtime-dom.global.js"></script> -->
+    <div id="app"></div>
+    <script>
+
+        const { h, createVNode,render ,createRenderer }  = VueRuntimeDOM
+
+    
+        render(h('h1','hello world'),app)
+
+        setTimeout(()=>{
+            render(h('h1','hello world'),app)
+        },1000)
+
+    </script>
+</body>
+</html>

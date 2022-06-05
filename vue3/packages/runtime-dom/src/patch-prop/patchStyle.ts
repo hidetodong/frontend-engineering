@@ -9,8 +9,8 @@ export function patchStyle(el,preValue,nextValue) { // 如何比较两个对象�
         for(let key in preValue) {
             if(nextValue[key] === null){
                 // 老得有 新的没有 需要删除老的
+                style[key] = null;
 
-                style[key] = null
             }
         }
     }

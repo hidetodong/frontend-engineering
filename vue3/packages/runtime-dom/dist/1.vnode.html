@@ -7,8 +7,8 @@
     <title>Document</title>
 </head>
 <body>
-    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script> -->
-    <script src="./runtime-dom.global.js"></script>
+    <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
+    <!-- <script src="./runtime-dom.global.js"></script> -->
     <div id="app"></div>
     <script>
 
@@ -21,7 +21,7 @@
         // 4） 元素 / 儿子 ｜ 元素
         // 5） 元素 多个儿子
         // const { render,h } = VueRuntimeDOM
-
+        console.log(h('h1',h('hello')))
         // 这个渲染器提供给用户，方便扩展
         // const { render,createApp } = createRenderer({
         //     // patchProp // 如何渲染

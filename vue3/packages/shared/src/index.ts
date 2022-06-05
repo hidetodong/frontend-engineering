@@ -14,3 +14,7 @@ export const  isArray = (value)=>{
     // return typeof value === 'array'
     return Array.isArray(value)
 }
+
+export const isNumber = (value)=>{
+    return typeof value === 'number'
+}

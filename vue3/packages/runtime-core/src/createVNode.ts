@@ -1,11 +1,19 @@
 import { isArray, isString } from "@vue/shared"
 
+export function isVnode(value){
+    return !!value.__v_isVnode
+}
+
+
+export const Text = Symbol("Text")
+
 export function createVNode(type,props = null,children = null){
 
     // 后续判断有不同类型的虚拟节点
     let shapeFlag = isString(type) ? ShapeFlags.ELEMENT : 0 // 标记自己是什么类型
  
     const vnode = {  // vnode要对应真实的节点
+        __v_isVnode:true,
         type,
         props,
         children,
@@ -29,7 +37,6 @@ export function createVNode(type,props = null,children = null){
     // prop | text | string
 
     // shapeFlags 判断虚拟节点的儿子是数组还是元素还是文本
-    console.log(vnode)
     return vnode
 }
 
