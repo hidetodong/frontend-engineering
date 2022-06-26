@@ -1,12 +1,3 @@
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-05 09:54:28
- * @LastEditTime: 2022-06-05 10:12:31
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/runtime-dom/dist/2.vnode.html
- * HIDETOXIC - 版权所有
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,20 +7,61 @@
     <title>Document</title>
 </head>
 <body>
-    <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
-    <!-- <script src="./runtime-dom.global.js"></script> -->
+    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script> -->
+
+    <script src="./runtime-dom.global.js"></script>
     <div id="app"></div>
+
     <script>
+        // 因为用户在操作dom节点的时候，很少有将儿子变成 父亲的情况， 因为如果要做完整的两颗树的比对性能很差
+        // diff算法采用同级节点比对
+        // 父亲比较完毕后会递归比较子节点 （全量的比对）
+        
+        const {createRenderer, h , createVNode,render} =  VueRuntimeDOM
 
-        const { h, createVNode,render ,createRenderer }  = VueRuntimeDOM
+      
+        // 比较前后两次创建的虚拟节点，更新差异的内容
 
-    
-        render(h('h1','hello world'),app)
+        // 我们想渲染一个dialog元素
+
+        // render(h('h1',{style:{color:'red'}},'hello world'),app)
+
+        // setTimeout(()=>{
+        //     render(h('h1',{style:{color:'yellow'}},'hello world'),app)
+        // },1000)
+        // setTimeout(()=>{
+        //     render(null,app)
+        // },2000)
+        
+        // render(h('h1','hello world'),app)
+
+        // 情况1
+        render(h('div',{style:{color:'red'}},
+            [
+            h('p',{key:'a'},'a'),
+                h('p',{key:'b'},'b'),
+                h('p',{key:'c'},'c'),
+                h('p',{key:'d'},'d'),
+                h('p',{key:'e'},'e'),
+                h('p',{key:'q'},'q'),
+                h('p',{key:'f'},'f'),
+                h('p',{key:'g'},'g')
+            ]
+        ),app)
 
         setTimeout(()=>{
-            render(h('h1','hello world'),app)
+        render(h('div',{style:{color:'red'}}, [
+       
+                h('p',{key:'a'},'a'),
+                h('p',{key:'b'},'b'),
+                h('p',{key:'e'},'e'),
+                h('p',{key:'c'},'c'),
+                h('p',{key:'d'},'d'),
+                h('p',{key:'h'},'h'),
+                h('p',{key:'f'},'f'),
+                h('p',{key:'g'},'g')
+            ]),app)
         },1000)
-
     </script>
 </body>
 </html>

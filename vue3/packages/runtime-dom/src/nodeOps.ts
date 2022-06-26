@@ -1,43 +1,33 @@
-export const nodeOps = {
-    /** 创建元素 */
+export const nodeOps  = {
     createElement(tagName){
         return document.createElement(tagName)
     },
-    /** 设置元素 */
-    setElementText(element,text){
-        element.textContent = text
-    },
-    /** 创建文本元素 */
     createTextNode(text){
         return document.createTextNode(text)
     },
-    setText(element,text){
-        element.nodeValue = text
-    },
-    /** 插入元素 */
     insert(element,container,anchor = null){
-        container.insertBefore(element,anchor) // anchor = null
+        container.insertBefore(element,anchor); // ==appendChild 
     },
-    /** 移除元素 */
     remove(child){
         const parent = child.parentNode;
         if(parent){
-            parent.removeChild(child)
+            parent.removeChild(child);
         }
     },
-    /** 查询元素 */
     querySelector(selectors){
-        return document.querySelector(selectors)
+        return document.querySelector(selectors);
     },
-    /**  */
-    parentNode(child){
+    parentNode(child){ // 父节点
         return child.parentNode
     },
-    nextSibling(child){
+    nextSibling(child){ // 获取兄弟元素
         return child.nextSibling
     },
-    
-
+    setText(element,text){ // 给文本节点设置内容
+        element.nodeValue = text;
+    },
+    setElementText(element,text){ // 给元素节点设置内容 innerHTML
+        element.textContent = text;
+    }
 }
-
-// 创建节点 创建文本节点 节点crud 获取父子关系 
+// 创建元素节点 创建文本节点  节点的增删查， 获取父子关系

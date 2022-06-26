@@ -7,42 +7,50 @@
     <title>Document</title>
 </head>
 <body>
-    <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
-    <!-- <script src="./runtime-dom.global.js"></script> -->
+    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script> -->
+
+    <script src="./runtime-dom.global.js"></script>
     <div id="app"></div>
+
     <script>
 
-        const { h, createVNode }  = VueRuntimeDOM
+        //  new Vue(虚拟节点).mount()  -》 渲染到页面上
+        
+        const {createRenderer, h , createVNode,render} =  VueRuntimeDOM
 
-        // 函数的重载函数 不同的参数 决定了不同的功能
-        // 1) 元素 / 内容
-        // 2） 元素 / 属性 / 内容
-        // 3） 元素 / 属性 /多个儿子
-        // 4） 元素 / 儿子 ｜ 元素
-        // 5） 元素 多个儿子
-        // const { render,h } = VueRuntimeDOM
-        console.log(h('h1',h('hello')))
-        // 这个渲染器提供给用户，方便扩展
-        // const { render,createApp } = createRenderer({
-        //     // patchProp // 如何渲染
-        //     // ...nodeOps // 节点操作
-        //     createElement(element){
-        //         console.log(element)
-        //         return document.createElement(element)
-        //     },
-        //     setElementText(element,text){
-        //         console.log(element,text)
-        //         element.textContent = text
-        //     },
-        //     insert(element,container){
-        //         container.appendChild(element)
-        //     }
+        // 函数的重载重载  不同的参数 决定了不同的功能 
+         // 1) 元素 内容
+         // 2) 元素 属性 内容
+         // 3) 元素 属性 多个儿子
+         // 4) 元素 儿子 / 元素    (只要不是文本节点，都会把儿子转成数组)
+         // 5) 元素 空属性 多个儿子
+        // console.log(h('h1',null,h('span','hello'),h('span','hello'),h('span','hello')))
+
+        
+        // h(类型, 元素的对象)
+        // h(类型, [''])
+        // h(类型, {})
+         // h(类型, '')
+        // console.log(h('h1',h('span')))
+
+
+        // 这个渲染器 提供给用户，让用户方便有自己的渲染逻辑
+        // const { render, createApp } = createRenderer({
+            // patchProp, // 如何渲染属性
+            // ...nodeOps // 节点操作
+            // createElement(element){
+            //     return document.createElement(element)
+            // },
+            // setElementText(element,text){
+            //      element.textContent = text
+            // },
+            // insert(element,container){
+            //     container.appendChild(element)
+            // }
         // })
 
-        // 渲染器就是为了用户方便拓展 vue中内置了节点操作可以直接使用
+        // 渲染器就是为了用户方便扩展，vue中内置了 节点操作可以直接使用
         // render(h('h1','hello world'),app)
-
-        console.log(createVNode('h1','hl '))
     </script>
 </body>
 </html>

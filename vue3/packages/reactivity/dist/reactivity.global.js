@@ -22,19 +22,21 @@ var VueReactivity = (() => {
   __export(src_exports, {
     computed: () => computed,
     effect: () => effect,
+    proxyRefs: () => proxyRefs,
     reactive: () => reactive,
     ref: () => ref,
+    toReactive: () => toReactive,
     toRef: () => toRef,
+    toRefs: () => toRefs,
     watch: () => watch
   });
 
   // packages/reactivity/src/effect.ts
   var activeEffect = void 0;
-  var targetMap = /* @__PURE__ */ new WeakMap();
   function cleanEffect(effect2) {
     let deps = effect2.deps;
     for (let i = 0; i < deps.length; i++) {
-      deps[i].delete;
+      deps[i].delete(effect2);
     }
     effect2.deps.length = 0;
   }
@@ -43,7 +45,7 @@ var VueReactivity = (() => {
       this.fn = fn;
       this.scheduler = scheduler;
       this.active = true;
-      this.parent = void 0;
+      this.parent = null;
       this.deps = [];
     }
     run() {
@@ -68,6 +70,29 @@ var VueReactivity = (() => {
       }
     }
   };
+  var targetMap = /* @__PURE__ */ new WeakMap();
+  function trigger(target, key, value) {
+    let depsMap = targetMap.get(target);
+    if (!depsMap) {
+      return;
+    }
+    let effects = depsMap.get(key);
+    triggerEffects(effects);
+  }
+  function triggerEffects(effects) {
+    if (effects) {
+      effects = new Set(effects);
+      effects.forEach((effect2) => {
+        if (effect2 !== activeEffect) {
+          if (effect2.scheduler) {
+            effect2.scheduler();
+          } else {
+            effect2.run();
+          }
+        }
+      });
+    }
+  }
   function track(target, key) {
     if (activeEffect) {
       let depsMap = targetMap.get(target);
@@ -78,49 +103,14 @@ var VueReactivity = (() => {
       if (!deps) {
         depsMap.set(key, deps = /* @__PURE__ */ new Set());
       }
-      let shouldTrack = !deps.has(activeEffect);
-      if (shouldTrack) {
-        deps.add(activeEffect);
-        activeEffect.deps.push(deps);
-      }
+      trackEffects(deps);
     }
   }
-  function triggerEffects(effects) {
-    effects = new Set(effects);
-    for (const effect2 of effects) {
-      if (effect2 !== activeEffect) {
-        if (effect2.scheduler) {
-          effect2.scheduler();
-        } else {
-          effect2.run();
-        }
-      }
-    }
-  }
-  function trackEffects(dep) {
-    let shouldTrack = !dep.has(activeEffect);
+  function trackEffects(deps) {
+    let shouldTrack = !deps.has(activeEffect);
     if (shouldTrack) {
-      dep.add(activeEffect);
-      activeEffect.deps.push(dep);
-    }
-  }
-  function trigger(target, key, value) {
-    let depsMap = targetMap.get(target);
-    if (!depsMap) {
-      return;
-    }
-    let effects = depsMap.get(key);
-    if (effects) {
-      effects = new Set(effects);
-      effects && effects.forEach((effect2) => {
-        if (effect2 !== activeEffect) {
-          if (effect2.scheduler) {
-            effect2.scheduler();
-          } else {
-            effect2.run();
-          }
-        }
-      });
+      deps.add(activeEffect);
+      activeEffect.deps.push(deps);
     }
   }
   function effect(fn, options = {}) {
@@ -157,9 +147,9 @@ var VueReactivity = (() => {
     },
     set(target, key, value, receiver) {
       let oldValue = target[key];
-      let result = true;
       if (oldValue !== value) {
-        result = Reflect.set(target, key, value, receiver);
+        let result = Reflect.set(target, key, value, receiver);
+        ;
         trigger(target, key, value);
         return result;
       }
@@ -176,9 +166,11 @@ var VueReactivity = (() => {
       return target;
     }
     const existing = reactiveMap.get(target);
-    if (existing)
+    if (existing) {
       return existing;
+    }
     const proxy = new Proxy(target, baseHandler);
+    reactiveMap.set(target, proxy);
     return proxy;
   }
 
@@ -187,9 +179,7 @@ var VueReactivity = (() => {
     let isGetter = isFunction(getterOrOptions);
     let getter;
     let setter;
-    const fn = () => {
-      console.warn("computed is readonly");
-    };
+    const fn = () => console.warn("computed is readonly ");
     if (isGetter) {
       getter = getterOrOptions;
       setter = fn;
@@ -201,12 +191,13 @@ var VueReactivity = (() => {
   }
   var ComputedRefImpl = class {
     constructor(getter, setter) {
-      this.getter = getter;
       this.setter = setter;
       this._dirty = true;
+      this.__v_isRef = true;
       this.effect = new ReactiveEffect(getter, () => {
         if (!this._dirty) {
           this._dirty = true;
+          triggerEffects(this.deps);
         }
       });
     }
@@ -220,8 +211,8 @@ var VueReactivity = (() => {
       }
       return this._value;
     }
-    set value(newValue) {
-      this.setter(newValue);
+    set value(newValues) {
+      this.setter(newValues);
     }
   };
 
@@ -252,10 +243,10 @@ var VueReactivity = (() => {
       cleanup = fn;
     };
     const job = () => {
-      if (cleanup)
-        cleanup();
+      cleanup && cleanup();
       let newValue = effect2.run();
       cb(newValue, oldValue, onCleanup);
+      oldValue = newValue;
     };
     const effect2 = new ReactiveEffect(get, job);
     oldValue = effect2.run();
@@ -265,8 +256,30 @@ var VueReactivity = (() => {
   function ref(value) {
     return new RefImpl(value);
   }
+  function toRefs(object) {
+    let result = {};
+    for (let key in object) {
+      result[key] = toRef(object, key);
+    }
+    return result;
+  }
   function toRef(object, key) {
     return new ObjectRefImpl(object, key);
+  }
+  function proxyRefs(object) {
+    return new Proxy(object, {
+      get(target, key, receiver) {
+        let r = Reflect.get(target, key, receiver);
+        return r.__v_isRef ? r.value : r;
+      },
+      set(target, key, value, receiver) {
+        if (target[key].__v_isRef) {
+          target[key].value = value;
+          return true;
+        }
+        return Reflect.set(target, key, value, receiver);
+      }
+    });
   }
   function toReactive(value) {
     return isObject(value) ? reactive(value) : value;
@@ -275,6 +288,7 @@ var VueReactivity = (() => {
     constructor(object, key) {
       this.object = object;
       this.key = key;
+      this.__v_isRef = true;
     }
     get value() {
       return this.object[this.key];
@@ -286,7 +300,7 @@ var VueReactivity = (() => {
   var RefImpl = class {
     constructor(rawValue) {
       this.rawValue = rawValue;
-      this.dep = /* @__PURE__ */ new Set();
+      this.__v_isRef = true;
       this._value = toReactive(rawValue);
     }
     get value() {

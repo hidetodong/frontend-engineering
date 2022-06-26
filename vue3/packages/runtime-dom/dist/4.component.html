@@ -1,0 +1,45 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-12 18:10:15
+ * @LastEditTime: 2022-06-12 22:46:08
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/runtime-dom/dist/4.component.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>  -->
+    <script src="./runtime-dom.global.js"></script>
+    <script>
+        // vue中在使用的时候 必须要有一个根节点，在一个代码块中可以引入多个子节点
+
+        const {render,Text,h,Fragment} =  VueRuntimeDOM;
+
+        const VueComponent = {
+            data(){
+                return {
+                    name:'zf'
+                }
+            },
+            render(){
+                return h('button',{onClick:()=>{
+                    this.name = 'xzd'
+                }},this.name)
+            }
+        }
+
+        // 处理h函数 让h函数支持组件类型 渲染的时候 判断如果是组件类型则调用render
+        render(h(VueComponent),app)
+    </script>
+    
+</body>
+</html>

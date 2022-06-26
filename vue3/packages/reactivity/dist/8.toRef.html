@@ -1,81 +1,73 @@
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-01 21:24:43
- * @LastEditTime: 2022-06-01 21:29:55
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/8.toRef.html
- * HIDETOXIC - 版权所有
--->
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-01 21:06:52
- * @LastEditTime: 2022-06-01 21:20:01
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/7.ref.html
- * HIDETOXIC - 版权所有
--->
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-01 20:02:30
- * @LastEditTime: 2022-06-01 20:34:38
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/6.watch.html
- * HIDETOXIC - 版权所有
--->
-<!--
- * @Author: hidetodong
- * @Date: 2022-05-29 16:11:47
- * @LastEditTime: 2022-05-29 16:21:08
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/5.computed.html
- * HIDETOXIC - 版权所有
--->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-  </head>
-  <body>
-    <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
-    <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
-    <script src="./reactivity.global.js"></script>
+</head>
+
+<body>
+    <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
+    <!-- <script src="./reactivity.global.js"></script> -->
     <div id="app"></div>
     <script>
-      // 缓存代理结果
+        const { effect, reactive, computed, watch, ref,toRefs,toRef ,proxyRefs} = VueReactivity;
 
-      // watch 虽然也是一个composition api 但是没有放到响应式模块中
-      const { effect, reactive, computed, ref ,toRefs,toRef} = VueReactivity;
+        const state = reactive({ name: 'zf', age: 13 })
 
-      let obj = { flag: true, name: "zf", age: 30, address: {} };
-
-      const state = reactive({
-        firstName: "Xing",
-        age: 30,
-        lastName: "Zidong",
-      });
+        let { name, age } = toRefs(state);
 
 
-      let firstName = toRef(state,'name') //转换成ref
-      let age = toRef(state,'age') // ref的原理
 
-      // name.value = state.name
-      // age.value = state.age
 
-      effect(()=>{
-        app.innerHTML = state.firstName + state.age
-      })
+        let  my = proxyRefs({
+            name,
+            age
+        })
 
-      setTimeout(()=>{
-        firstName.value = 1000
-      },1000)
-      
+        // let name = toRef(state,'name')
+        // let age = toRef(state,'age') // toRef的原理是什么？
+
+        // name.value = state.name;
+        // age.value = state.age
+
+
+        // 用户在页面使用这些变量的时候 
+
+        /*
+            <template> {{name}} {{age}}</template>
+        */
+        effect(() => {
+            app.innerHTML = my.name + my.age;
+        });
+        setTimeout(() => {
+            name.value = 'jw'
+        }, 1000);
+
+
+
+       
+
+        // reactive 适合对象类型，非对象不能使用, 不是对象的不能被代理
+        // reactive （readonly、 shallowReadonly、 shallowReactive）
+
+        // 非对象类型的 ref  toRef  toRefs, 将ref的类型包装到了一个新的对象中，我们不想在.value 取值。那么可以采用proxyRefs代理取值. 
+        // ref 放到reactive中会自动的被结构 （这里面还有数组的情况）
+
+
+        // computed 。 watch 都是基于effect 
+        // computed中是具备缓存的dirty, 依赖的值变化了会执行effect，此时更改dirty属性， 计算属性还会收集依赖，   watch 就是数据变化了触发内部的scheduler
+        // computed 也是ref 可以用在模板上 ，但是watch不能用在模板上，只能在业务逻辑中使用 onCleanup
+
+
+        // watch内部可以实现异步调用回掉，异步调用scheduler
+
+
+
+
     </script>
-  </body>
+</body>
+
 </html>

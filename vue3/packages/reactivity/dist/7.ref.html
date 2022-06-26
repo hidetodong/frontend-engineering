@@ -1,67 +1,33 @@
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-01 21:06:52
- * @LastEditTime: 2022-06-01 21:20:01
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/7.ref.html
- * HIDETOXIC - 版权所有
--->
-<!--
- * @Author: hidetodong
- * @Date: 2022-06-01 20:02:30
- * @LastEditTime: 2022-06-01 20:34:38
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/6.watch.html
- * HIDETOXIC - 版权所有
--->
-<!--
- * @Author: hidetodong
- * @Date: 2022-05-29 16:11:47
- * @LastEditTime: 2022-05-29 16:21:08
- * @LastEditors: hidetodong
- * @Description: 
- * @FilePath: /vue3/packages/reactivity/dist/5.computed.html
- * HIDETOXIC - 版权所有
--->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-  </head>
-  <body>
-    <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
-    <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
+</head>
+
+<body>
+    <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
     <script src="./reactivity.global.js"></script>
     <div id="app"></div>
     <script>
-      // 缓存代理结果
+        const { effect, reactive, computed, watch,ref } = VueReactivity;
 
-      // watch 虽然也是一个composition api 但是没有放到响应式模块中
-      const { effect, reactive, computed, ref } = VueReactivity;
+         const state = reactive({name:'zf',age:13})
 
-      let obj = { flag: true, name: "zf", age: 30, address: {} };
+        // 基于Object.defineProperty
+        let flag = ref(false); // 基本类型，没有收集能力, 用ref将基本类型变成对象类型
 
-      const state = reactive({
-        firstName: "Xing",
-        age: 30,
-        lastName: "Zidong",
-      });
+        effect(()=>{
+            app.innerHTML = flag.value // 取value属性的时候可以收集effect
+        })
+        setTimeout(()=>{
+            flag.value = true; // 改value的时候可以触发effect重新执行
+        },1000)
 
-      let flag = ref(false); // 用ref将基本类型包装成对象。基本类型没有收集能力
-
-      effect(() => {
-        app.innerHTML = flag.value;
-      });
-
-      setTimeout(() => {
-          console.log("123123")
-        flag.value = true; // 改value的时候可以触发effect重新执行
-      }, 1000);
     </script>
-  </body>
+</body>
+
 </html>

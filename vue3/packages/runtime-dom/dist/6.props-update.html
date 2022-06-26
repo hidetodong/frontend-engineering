@@ -1,0 +1,81 @@
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-26 13:49:51
+ * @LastEditTime: 2022-06-26 13:55:46
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/runtime-dom/dist/6.props-update.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-12 22:51:19
+ * @LastEditTime: 2022-06-12 22:57:59
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/runtime-dom/dist/5.props.html
+ * HIDETOXIC - 版权所有
+-->
+<!--
+ * @Author: hidetodong
+ * @Date: 2022-06-12 18:10:15
+ * @LastEditTime: 2022-06-12 22:46:08
+ * @LastEditors: hidetodong
+ * @Description: 
+ * @FilePath: /vue3/packages/runtime-dom/dist/4.component.html
+ * HIDETOXIC - 版权所有
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+    <!-- <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>  -->
+    <script src="./runtime-dom.global.js"></script>
+    <script>
+        // vue中在使用的时候 必须要有一个根节点，在一个代码块中可以引入多个子节点
+
+        const {render,Text,h,Fragment} =  VueRuntimeDOM;
+
+        const ChildComponent = {
+            props:{
+                a:{}
+            },
+            render(){
+                return h('a',this.a)
+            }
+        }
+
+        const VueComponent = {
+            props:{ // propsOptions 用户提供的告诉vue 哪些是属性 其他不是的 会放到attrs中
+                a:Number,
+                b:Number
+            },
+            data(){
+                return {
+                    name:'zf',
+                    flag:true
+                }
+            },
+            render(){
+                // return h('button',{a:1,b:2,c:3},this.name)
+                return h(Fragment,[
+                    h(ChildComponent,{a:this.flag ? 1:2}),
+                    h('button',{onClick:()=>{
+                        this.flag = false;
+                    }},'重新渲染组件')
+                ])
+            }
+        }
+        debugger
+        // 处理h函数 让h函数支持组件类型 渲染的时候 判断如果是组件类型则调用render
+        render(h(VueComponent),app)
+    </script>
+    
+</body>
+</html>
