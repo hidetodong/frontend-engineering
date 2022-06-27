@@ -1,7 +1,7 @@
 /*
  * @Author: hidetodong
  * @Date: 2022-06-26 21:31:41
- * @LastEditTime: 2022-06-26 22:50:24
+ * @LastEditTime: 2022-06-27 08:36:57
  * @LastEditors: hidetodong
  * @Description:
  * @FilePath: /vite-pinia/src/pinia/store.js
@@ -21,6 +21,23 @@ import { symbolPinia } from "./consts";
 // _s store和对应的id映射
 //_e 用于停止effect
 
+function isObject(value){
+  return typeof value === "object" && value !== null
+}
+
+function merge (target,state){
+  for(let key in state){
+    target[key] = state[key] 
+    let oldValue = target[key]
+    let newValue = state[key]
+    if(isObject(oldValue)&&isObject(newValue)){
+      target[key] = merge(oldValue,newValue) 
+    }else{
+      target[key] = state[key]
+    }
+  }
+}
+
 function createSetupStore(id, setup, pinia) {
   let scope;
 
@@ -30,7 +47,17 @@ function createSetupStore(id, setup, pinia) {
     return scope.run(() => setup());
   });
 
-  const store = reactive({}); // 这里可以扩展自己的方法
+  function $patch(partialStateOrMutator){
+    if(typeof partialStateOrMutator === "function"){
+      partialStateOrMutator(pinia.state.value[id])
+    }else{
+      merge(pinia.state.value[id],partialStateOrMutator)
+    }
+  }
+
+  const store = reactive({
+    $patch
+  }); // 这里可以扩展自己的方法
 
   pinia._s.set(id, store);
 

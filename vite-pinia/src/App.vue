@@ -1,12 +1,19 @@
 <template>
-  <div @click="increment(5)">{{ store.count}} / {{ store.double}}</div>
+  <div @click="handleClick">{{ store.count}} / {{ store.double}}</div>
 </template>
 
 <script setup>
 import {useMainStore} from  './stores/main.js';
 const store = useMainStore()
 const {increment} = useMainStore()
-console.log(store);
+const handleClick = ()=>{
+  store.$patch(()=>{
+    store.count += 1
+    store.count += 1
+    store.count += 1
+    store.count += 1
+  })
+}
 </script>
 
 <style>
