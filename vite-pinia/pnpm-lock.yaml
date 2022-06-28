@@ -3,11 +3,13 @@ lockfileVersion: 5.4
 specifiers:
   '@vitejs/plugin-vue': ^2.3.3
   pinia: ^2.0.14
+  pnpm: ^7.3.0
   vite: ^2.9.9
   vue: ^3.2.25
 
 dependencies:
   pinia: 2.0.14_vue@3.2.37
+  pnpm: 7.3.0
   vue: 3.2.37
 
 devDependencies:
@@ -393,6 +395,12 @@ packages:
       '@vue/devtools-api': 6.1.4
       vue: 3.2.37
       vue-demi: 0.13.1_vue@3.2.37
+    dev: false
+
+  /pnpm/7.3.0:
+    resolution: {integrity: sha512-HOXT6V+AznAyjL2Ay3TuuJQucsEguUiKjqyQq4WPPwOpaaILhkKvu8Nn1/OQWGi9V6T7OciyrctAKeYyCha6Ow==}
+    engines: {node: '>=14.6'}
+    hasBin: true
     dev: false
 
   /postcss/8.4.14:

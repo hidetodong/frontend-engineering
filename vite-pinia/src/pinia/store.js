@@ -14,25 +14,28 @@ import {
   reactive,
   computed,
   toRefs,
+  watch
 } from "vue";
 import { symbolPinia } from "./consts";
+import { addSubscription } from './subscription'
+
 // let pinia = inject (symbolPinia)
 // state 管理store中的state
 // _s store和对应的id映射
 //_e 用于停止effect
 
-function isObject(value){
+function isObject(value) {
   return typeof value === "object" && value !== null
 }
 
-function merge (target,state){
-  for(let key in state){
-    target[key] = state[key] 
+function merge(target, state) {
+  for (let key in state) {
+    target[key] = state[key]
     let oldValue = target[key]
     let newValue = state[key]
-    if(isObject(oldValue)&&isObject(newValue)){
-      target[key] = merge(oldValue,newValue) 
-    }else{
+    if (isObject(oldValue) && isObject(newValue)) {
+      target[key] = merge(oldValue, newValue)
+    } else {
       target[key] = state[key]
     }
   }
@@ -47,16 +50,28 @@ function createSetupStore(id, setup, pinia) {
     return scope.run(() => setup());
   });
 
-  function $patch(partialStateOrMutator){
-    if(typeof partialStateOrMutator === "function"){
+  function $patch(partialStateOrMutator) {
+    if (typeof partialStateOrMutator === "function") {
       partialStateOrMutator(pinia.state.value[id])
-    }else{
-      merge(pinia.state.value[id],partialStateOrMutator)
+    } else {
+      merge(pinia.state.value[id], partialStateOrMutator)
     }
   }
 
+  const actionSubscription = []
+
   const store = reactive({
-    $patch
+    $patch,
+    $subscribe(callback, options) {
+      scope.run(() => {
+
+        watch(pinia.state.value[id], (state) => {
+          callback(state)
+        }, options)
+      })
+    },
+    /** 绑定数组和用户的回调 */
+    $onAction:addSubscription.bind(null,actionSubscription)
   }); // 这里可以扩展自己的方法
 
   pinia._s.set(id, store);
@@ -64,6 +79,7 @@ function createSetupStore(id, setup, pinia) {
   function wrapAction(action) {
     return function (...args) {
       // todo ..
+      console.log('actionSubscription',actionSubscription)
       return action.call(store, ...args);
     };
   }
@@ -76,6 +92,12 @@ function createSetupStore(id, setup, pinia) {
   }
 
   Object.assign(store, setupStore);
+
+  // if(!pinia.state.value[id]){
+  //   pinia.state.value[id] = {}
+  // }
+
+  return store
 }
 
 function createOptionsStore(id, options, pinia) {
@@ -95,7 +117,13 @@ function createOptionsStore(id, options, pinia) {
       }, {})
     );
   }
-  createSetupStore(id, setup, pinia);
+  const store = createSetupStore(id, setup, pinia);
+  store.$reset = function () {
+    const newState = state ? state() : {};
+    store.$patch((state) => {
+      Object.assign(state, newState)
+    })
+  }
 }
 
 export function defineStore(idOrOptions, setup) {

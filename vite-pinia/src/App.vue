@@ -6,13 +6,21 @@
 import {useMainStore} from  './stores/main.js';
 const store = useMainStore()
 const {increment} = useMainStore()
+store.$subscribe((state)=>{ //watch
+  console.log('state',state)
+})
+
+store.$onAction(({ after,onError })=>{
+
+})
 const handleClick = ()=>{
-  store.$patch(()=>{
-    store.count += 1
-    store.count += 1
-    store.count += 1
-    store.count += 1
-  })
+  increment(5)
+  // store.$patch(()=>{
+  //   store.count += 1
+  //   store.count += 1
+  //   store.count += 1
+  //   store.count += 1
+  // })
 }
 </script>
 
