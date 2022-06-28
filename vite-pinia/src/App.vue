@@ -1,5 +1,6 @@
 <template>
   <div @click="handleClick">{{ store.count}} / {{ store.double}}</div>
+  <button @click="store.$state = {count:100}">$state修改</button>
 </template>
 
 <script setup>
@@ -11,7 +12,13 @@ store.$subscribe((state)=>{ //watch
 })
 
 store.$onAction(({ after,onError })=>{
+  after((resolvedValue)=>{
+    console.log(resolvedValue);
+  })
 
+  onError((error)=>{
+
+  })
 })
 const handleClick = ()=>{
   increment(5)
@@ -22,6 +29,7 @@ const handleClick = ()=>{
   //   store.count += 1
   // })
 }
+// store.$dispose()
 </script>
 
 <style>

@@ -1,7 +1,7 @@
 /*
  * @Author: hidetodong
  * @Date: 2022-06-26 21:31:41
- * @LastEditTime: 2022-06-27 08:36:57
+ * @LastEditTime: 2022-06-28 22:55:25
  * @LastEditors: hidetodong
  * @Description:
  * @FilePath: /vite-pinia/src/pinia/store.js
@@ -17,7 +17,7 @@ import {
   watch
 } from "vue";
 import { symbolPinia } from "./consts";
-import { addSubscription } from './subscription'
+import { addSubscription, triggerSubscription } from './subscription'
 
 // let pinia = inject (symbolPinia)
 // state 管理store中的state
@@ -58,29 +58,63 @@ function createSetupStore(id, setup, pinia) {
     }
   }
 
-  const actionSubscription = []
+  let actionSubscription = []
 
   const store = reactive({
     $patch,
     $subscribe(callback, options) {
       scope.run(() => {
-
         watch(pinia.state.value[id], (state) => {
           callback(state)
         }, options)
       })
     },
     /** 绑定数组和用户的回调 */
-    $onAction:addSubscription.bind(null,actionSubscription)
+    $onAction:addSubscription.bind(null,actionSubscription),
+    $dispose(){
+      scope.stop();
+      actionSubscription = []
+      pinia._s.delete(id)
+    }
   }); // 这里可以扩展自己的方法
 
   pinia._s.set(id, store);
 
   function wrapAction(action) {
     return function (...args) {
-      // todo ..
-      console.log('actionSubscription',actionSubscription)
-      return action.call(store, ...args);
+
+      let afterList = []
+      let errorList = []
+      
+      function after(callback){
+        afterList.push(callback)
+      }
+
+      function onError(callback){
+        errorList.push(callback)
+      }
+
+      triggerSubscription(actionSubscription,{ after ,onError})
+
+      let result 
+      try {
+        result = action.call(store, ...args);
+      } catch (error) {
+        triggerSubscription(errorList,error)
+      }
+
+      if(result instanceof Promise){
+        return result.then(v=>{
+          triggerSubscription(afterList,v)
+        }).catch(e=>{
+          triggerSubscription(errorList,e)
+          return Promise.reject(e)
+        })
+      }
+
+      // action 能同步也能异步
+      return result
+
     };
   }
 
@@ -93,9 +127,19 @@ function createSetupStore(id, setup, pinia) {
 
   Object.assign(store, setupStore);
 
-  // if(!pinia.state.value[id]){
-  //   pinia.state.value[id] = {}
-  // }
+  if(!pinia.state.value[id]){
+    pinia.state.value[id] = setupStore
+  }
+
+  Object.defineProperty(store,'$state',{
+    get:()=>pinia.state.value[id],
+    set:state=>$patch(($state)=>Object.assign($state,state))
+  })
+
+  store.id = id
+  pinia._p.forEach(plugin=>{
+    scope.run(()=>{plugin(store)})
+  })
 
   return store
 }
@@ -144,7 +188,7 @@ export function defineStore(idOrOptions, setup) {
   function useStore() {
     const currentInstance = getCurrentInstance();
     const pinia = currentInstance && inject(symbolPinia);
-    console.log(pinia);
+    console.log('p',pinia)
     if (!pinia._s.has(id)) {
       if (isSetupStore) {
         createSetupStore(id, setup, pinia);

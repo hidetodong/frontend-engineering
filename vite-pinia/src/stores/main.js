@@ -1,7 +1,7 @@
 /*
  * @Author: hidetodong
  * @Date: 2022-06-26 20:39:27
- * @LastEditTime: 2022-06-26 22:44:01
+ * @LastEditTime: 2022-06-28 22:56:12
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /vite-pinia/src/stores/main.js
@@ -10,8 +10,7 @@
 
 import { defineStore } from "../pinia";
 
-export const useMainStore = defineStore({
-    id:'main',
+export const useMainStore = defineStore('main',{
     state:() => {
         return {
             count:0
