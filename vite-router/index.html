@@ -1,107 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <script>
-        // 1.vue-router 让路由具备响应式，路径变了更新视图
-        // 2.路由的核心 我们要自己维护路径的功能，要维护跳转的状态 replace push 状态信息
-        // 3.可以注入监听方法
-        function createCurrentLocation(){
-            let { pathname,search,hash } = location;
-            return pathname + search + hash
-        }
-
-        function buildState(back,current,forward,replaced = false,computedScroll = false){
-            return {
-                back,
-                current,
-                forward,
-                replaced,
-                scroll:computedScroll ? { left:window.pageXOffset,top:window.pageYOffset } : null
-            }
-        }
-
-        function useHistoryStateNavigation(){
-            // 用对象 方便修改引用传参
-            const currentLocation = {
-                value:createCurrentLocation() 
-            }
-
-            const currentState = {
-                value:history.state
-            }
-
-            function changeLocation(to,state,replaced){
-                history[replaced ? 'replaceState':'pushState'](state,'',to)
-                currentLocation.value = to
-                currentState.value = state
-            }
-
-            function push(to,data) {
-                // 做push的时候 要有两个状态 跳转前 跳转后
-                const state1 = {
-                    ...currentState.value,
-                    ...{
-                        forward:to,
-                        scroll:{ left:window.pageXOffset,top:window.pageYOffset }
-                    }
-                }
-
-                changeLocation(currentLocation.value,state1,true)
-
-                let state2 = {
-                    ...buildState(currentLocation.value,to,null),
-                    ...data
-                }
-
-                changeLocation(to,state2,false)
-            }
-
-            function replace(to,data){
-                // 构建一个全新状态 替换路径
-                let state = { 
-                    ...buildState(
-                        currentState.value.back,
-                        to,
-                        currentState.value.forward,
-                        true,
-                    ),
-                    ...data
-                }
-                changeLocation(to,state,true)
-            }
-
-            
-
-            if(!currentState.value){
-                changeLocation(currentLocation.value,buildState(null,currentLocation.value,null,true,false),true)
-            }
-
-            console.log('currentLocation,currentState,history.state',currentLocation,currentState,history.state)
-
-            return {
-                location:currentLocation,
-                state:currentState,
-                push,
-                replace
-            }
-        }
-
-        function createWebHistory(){
-            // 1.实现维护路径和状态
-            const historyNavigation = useHistoryStateNavigation()
-
-            historyNavigation.push('/about',{a:1})
-        }
-
-        createWebHistory()
-        
-
-    </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
+ 
