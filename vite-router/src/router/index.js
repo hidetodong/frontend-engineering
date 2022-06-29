@@ -1,7 +1,7 @@
 /*
  * @Author: hidetodong
  * @Date: 2022-06-28 23:09:03
- * @LastEditTime: 2022-06-28 23:32:51
+ * @LastEditTime: 2022-06-29 23:39:12
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /vite-router/src/router/index.js
@@ -10,15 +10,42 @@
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import { createRouter,createWebHashHistory,createWebHistory } from '../vue-router'
+import { h } from 'vue'
 
 const routes = [
     {
         path:'/',
         component:Home,
+        children:[{
+            path:'a',
+            component:{
+                render:(...args)=>{
+                    console.log(args)
+                    return h('h1','hello a ')
+                }
+            }
+        },{
+            path:'c',
+            component:{
+                render:(...args)=>{
+                    console.log(args)
+                    return h('h1','hello c ')
+                }
+            }
+        }]
     },
     {
         path:'/about',
         component:About,
+        children:[{
+            path:'b',
+            component:{
+                render:(...args)=>{
+                    console.log(args)
+                    return h('h1','hello b ')
+                }
+            }
+        }]
     }
 ]
 

@@ -1,7 +1,7 @@
 <!--
  * @Author: hidetodong
  * @Date: 2022-06-28 23:11:13
- * @LastEditTime: 2022-06-28 23:11:20
+ * @LastEditTime: 2022-06-29 23:14:22
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /vite-router/src/views/Home.vue
@@ -9,7 +9,9 @@
 -->
 <template>
     <div>
-`123`
+        <router-link to="/a"> yemi </router-link>
+        <router-link to="/a"> yemi </router-link>
+        <router-view/>
     </div>
 </template>
 
