@@ -107,7 +107,7 @@ function useHistoryListener(currentLocation, currentState) {
     }
 }
 
-export function createWebHistory(base) {
+export function createWebHistory(base = '') {
     // 1.实现维护路径和状态
     const historyNavigation = useHistoryStateNavigation(base)
     // 2.监听前进后退事件
