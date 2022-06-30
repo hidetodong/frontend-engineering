@@ -1,6 +1,5 @@
 export * from "./history";
-
-import { shallowRef, computed,inject } from "vue";
+import { shallowRef, computed, inject, provide, Fragment, h } from "vue";
 /** 格式化route */
 function normalizeRecord(record) {
   return {
@@ -107,6 +106,19 @@ export function createRouter(options) {
     reactiveRoute[key] = computed(() => currentRoute.value[key]);
   }
 
+  function useCallback() {
+    const handlers = [];
+    const add = (callback) => handlers.push(callback);
+    return {
+      list: () => handlers,
+      add,
+    };
+  }
+
+  const beforeGuards = useCallback();
+  const beforeResolveGuards = useCallback();
+  const afterEachGuards = useCallback();
+
   function resolve(to) {
     if (typeof to === "string") {
       // :to='/xxx'
@@ -116,21 +128,116 @@ export function createRouter(options) {
     return resolveMatcher(to); // 当前路径是什么 匹配到的结果是什么
   }
 
-  function markReady(){
-    if(ready) return
-    ready = true
+  function markReady() {
+    if (ready) return;
+    ready = true;
 
-    history.listen((to)=>{
+    history.listen((to) => {
+      // 监听用户前进后退 再次发生跳转逻辑
+      const targetLocation = resolve(to);
+      const from = currentRoute.value;
+      finalNavigation(targetLocation, from, true);
+    });
+  }
 
-        // 监听用户前进后退 再次发生跳转逻辑
-        const targetLocation = resolve(to)
-        const from = currentRoute.value
-        finalNavigation(targetLocation,from,true)
+  function extractRecords(to, from) {
+    const leavingRecords = [];
+    const updatingRecords = [];
+    const enteringRecords = [];
+
+    let len = Math.max(to.matched.length, from.matched.length);
+
+    for (let i = 0; i < len; i++) {
+      let fromMatched = from.matched[i];
+      let toMatched = to.matched[i];
+
+      if (fromMatched) {
+        // 1) 可能是更新 来的和去的一样 说明要更新
+        // 2）来的和去的不一样 说明要离开
+
+        if (to.matched.find((record) => record.path === fromMatched.path)) {
+          updatingRecords.push(fromMatched);
+        } else {
+          leavingRecords.push(fromMatched);
+        }
+      }
+
+      if (toMatched) {
+        if (!from.matched.find((record) => record.path === toMatched.path)) {
+          enteringRecords.push(toMatched);
+        }
+      }
+    }
+
+    return [leavingRecords, updatingRecords, enteringRecords];
+  }
+
+  // 把用户传的函数包装成promise
+  function guardToPromise(guard,to,from) {
+    return ()=> new Promise((resolve,reject)=>{
+        const next = ()=> resolve()
+        // 用户可以主动调用next向下执行 
+        // 也可以等待钩子执行完毕后，自动往下走
+        return Promise.resolve(guard(to,from,next)).then(next);
     })
   }
 
-  function finalNavigation(to, from,replaced = false) {
-    if (from === START_LOCATION_STATE || replaced) { //第一次是replace
+  function extractComponentGuards(records, guardType, to, from) {
+    const guards = []
+    for(let i = 0; i < records.length;i++){
+        let Comp = records[i].components.default
+        let guard =  Comp[guardType];
+        guard && guards.push(guardToPromise(guard,to,from))
+    }
+    return guards;
+  }
+
+  function runQueue(guards){ // 让promise链在一起
+    return guards.reduce((p,guard)=>{
+        return p.then(()=> guard())
+    },Promise.resolve())
+  }
+
+  function navigateBefore(to, from) {
+    // 收集离开的钩子 和 更新的钩子，进入的钩子
+    let [leavingRecords, updatingRecords, enteringRecords] = extractRecords(
+      to,
+      from
+    );
+
+    leavingRecords = leavingRecords.reverse();
+
+
+    // promise数组
+    let leaveGuards = extractComponentGuards(leavingRecords, "beforeRouteLeave", to, from);
+
+    return runQueue(leaveGuards).then(()=>{
+        let guards = []
+        for(let guard of beforeGuards.list()) {
+            guards.push(guardToPromise(guard,to,from))
+        };
+        return runQueue(guards)
+    }).then(()=>{
+        let updateRecords = extractComponentGuards(updatingRecords,'beforeRouteUpdate',to,from);
+        return runQueue(updateRecords)
+    }).then(()=>{
+        let guards = []
+        to.matched.forEach(record=> {
+            if(record.beforeEnter){
+                guards.push(guardToPromise(record.beforeEnter,to,from))
+            }
+        });
+        return runQueue(guards)
+    }).then(()=>{
+        let enterRecords = extractComponentGuards(enteringRecords,'beforeRouteEnter',to,from);
+        return runQueue(enterRecords)
+    })  
+
+  }
+
+  function finalNavigation(to, from, replaced = false) {
+    if (from === START_LOCATION_STATE || replaced) {
+      //第一次是replace
       history.replace(to.path);
     } else {
       history.push(to.path);
@@ -145,10 +252,17 @@ export function createRouter(options) {
     const from = currentRoute.value;
 
     // 更新currentRoute 这个属性是响应式的
-
-    finalNavigation(targetLocation, from);
-
-    
+    // 先走钩子 再走跳转
+    navigateBefore(targetLocation, from)
+      .then(() => {
+        return finalNavigation(targetLocation, from);
+      })
+      .then(() => {
+        //afterEach
+        for (let guard of afterEachGuards.list()) {
+          guard(to, from);
+        }
+      });
   }
 
   // 根据routes生成对应的匹配器 [{path:'/',component}]
@@ -183,15 +297,46 @@ export function createRouter(options) {
         },
       });
 
-
-      // 当前路径使用 matched来渲染
+      // router-view 有两层
+      // router-view 0
+      // - router-view 1
+      // 当前路径使用 matched来渲染 ['/','/a']
       app.component("RouterView", {
         setup(props, { slots }) {
-          return () => <div></div>;
+          const depth = inject("depth", 0);
+          provide("depth", depth + 1);
+
+          const currentRoute = inject("route");
+          const computedRecord = computed(
+            () => currentRoute.value.matched[depth]
+          );
+
+          return () => {
+            let record = computedRecord.value;
+
+            const Comp = record?.components.default;
+
+            if (!Comp) {
+              return h(Fragment, []);
+            }
+            return h(Comp);
+          };
         },
       });
     },
+    beforeEach: beforeGuards.add,
+    beforeResolve: beforeResolveGuards.add,
+    afterEach: afterEachGuards.add,
   };
 
   return router;
 }
+
+// beforeRouteLeave
+// beforeEach
+// beforeRouteUpdate
+
+// beforeEnter
+// beforeRouteEnter
+// beforeResolve
+// afterEach

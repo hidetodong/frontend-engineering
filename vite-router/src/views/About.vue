@@ -1,7 +1,7 @@
 <!--
  * @Author: hidetodong
  * @Date: 2022-06-28 23:11:17
- * @LastEditTime: 2022-06-28 23:11:18
+ * @LastEditTime: 2022-06-30 22:29:58
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /vite-router/src/views/About.vue
@@ -9,7 +9,7 @@
 -->
 <template>
     <div>
-4444
+        <router-link to="/b">444</router-link>
     </div>
 </template>
 

@@ -3,7 +3,6 @@
 
 <template>
   <router-link to="/">luyou</router-link>
-  <div>123123121231</div>
   <router-link to="/about">luyou2</router-link>
 
   <router-view />
