@@ -1,72 +1,34 @@
-const name: string = "ss";
+/*
+ * @Author: hidetodong
+ * @Date: 2022-07-04 22:10:08
+ * @LastEditTime: 2022-07-04 22:36:48
+ * @LastEditors: hidetodong
+ * @Description:
+ * @FilePath: /ts-project/src/index.ts
+ * HIDETOXIC - 版权所有
+ */
 
-// ts安装后 内置了很多全局类型
-// 解决冲突就用模块化
-// 人为的h
+let base!: string | number; // 对于联合类型来说 我们可默认可以调用他的公共方法
 
-// string 和 String区别
-// 基本类型。  实例
+// 1) 用的时候确定好值,后面的调用都会基于前面的赋值
+// (base as number).toFixed()
+// 2) 可以断言成一个已经存在的类型
+// let ele = document.getElementById('root')! // !表示这个东西一定不为空
+// ele.style.background
+// 3) 强制类型转换
+// (<HTMLElement>ele).style.background;
+// 4) 联合类型
+type IX = "1" | "2" | "3";
+// 5) 交叉类型
+type Person1 = { name: string; height: string };
+type Person2 = { name: string; handsome: string };
 
-// 元组
-let tuple: [string, number] = ["abc", 1231];
+type Person3 = Person1 | Person2
 
-tuple.push("s");
+let person:Person3
+let person1:Person1
 
-// 枚举
-// 1）普通枚举
-enum STATUS_CODE {
-  NOT_FOUND = 404,
-  NOT_ALLOWED = 405,
-  ERROR = 400,
-}
-
-// 2) 异构枚举
-const enum STATUS_CODE_2 {
-  NOT_FOUND = 404,
-  NOT_ALLOWED = "405",
-}
-
-// 8) void
-// 9) never 特殊类型 never是任何类型的子类型 可以赋给其他类型  但是其他类型不能赋给他
-function whileTrue(): never {
-  while (true) {}
-}
-// never 用途
-// 1） 完整性保护
-// 方形圆形矩形
-// ts语法 声明一个类型 字面量类型
-type ISquare =  { width: number,kind: "square" }
-type IRect = { width: number; height: number,kind: "rectangle" }
-type ICircle = | { r: number,kind:"circle" };
-
-function getArea(obj: ISquare|IRect|ICircle) {
-    if(obj.kind === 'square'){
-        return obj.width * obj.width
-    }
-
-    if(obj.kind === 'rectangle'){
-        return obj.width * obj.height
-    }
-
-    if(obj.kind === 'circle'){
-        return obj.r * obj.r
-    }
-
-    validate(obj)
-}
-
-function validate(obj:never){
-
-}
-
-function reactive(obj:object){
-
-}
-
-reactive(function(){
-    
-})
-
-
+// 两个类型联合后如果没有初始化则只能使用公共的部分（并集）
+type Person4  = Person1 & Person2
 
 export {};

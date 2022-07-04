@@ -52,3 +52,5 @@ fs.readFile(path.resolve(__dirname,'b.txt'),{encoding: 'utf8'},(err,res)=>{
 
 
 // 通过发布订阅来解耦
+
+// 观察者模式是基于发布订阅的 数据变化后可以自动通知
