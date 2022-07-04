@@ -1,7 +1,7 @@
 /*
  * @Author: hidetodong
  * @Date: 2022-07-03 11:04:17
- * @LastEditTime: 2022-07-03 11:53:54
+ * @LastEditTime: 2022-07-03 14:07:41
  * @LastEditors: hidetodong
  * @Description: 
  * @FilePath: /node/2.promise/1.js
@@ -14,6 +14,9 @@
 // 3) 尽量简化回调 多个异步并发的问题 Promise.all Promise.finally
 
 const Promise = require('./promise');
+
+const fs = require('fs')
+const path = require('path')
 
 const promise = new Promise((resolve, reject) => {
 
