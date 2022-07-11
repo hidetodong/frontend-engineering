@@ -25,7 +25,29 @@ const vm = require('vm')
 // vm.runInThisContext('console.log(abc)') // 用作沙箱
 
 // 内部会自动添加.js 和 .json来查找一遍
-let r = require('./a')
+// let r = require('./a')
 
+// let r = function () {
+//     module.exports = a 
+//     return module.exports // 内部会对执行的函数包装一个函数来实现模块化
+// }
+debugger
+
+require('./a')
+
+// 1. Module._load() 加载模块
+// 2. Module._resolveFileName 处理路径为绝对路径 并且添加文件后缀
+// 3. 拿到文件 看一下是否加载过 加载过直接返回缓存
+// 4. 如果没有缓存过 则会new Module(id,exports = {}) exports 是对应模块的导出结果 默认为空
+// 5. 将创建的模块缓存
+// 6. 根据文件加载模块 给 module.exports 赋值
+// 7. 找到对应的文件后缀 做加载操作 Module._extension[.js](this,filename); 策略模式
+// 8. 读取文件内容fs.readFileSync(filename,'utf8')
+// 9. 将字符串执行 module._compile编译字符串
+// 10. 包裹函数 'exports' 'require' 'module' '__filename' '__dirname'   
+//. module.exports = exports
+//. this = exports
+// 11. Reflect.apply(this,[exports,require,module,filename,path.dirname])
+// 最终返回 module.exports
 console.log(r)
 

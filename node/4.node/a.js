@@ -7,3 +7,5 @@
  * @FilePath: /node/4.node/a.js
  * HIDETOXIC - 版权所有
  */
+
+module.exports = "abc"
