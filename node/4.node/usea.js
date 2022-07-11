@@ -16,8 +16,9 @@
 
 const fs = require('fs')
 const path = require('path')
+const vm = require("vm")
 
-function Module() {
+function Module(id) {
     this.id = id 
     this.exports = {}
 }
@@ -29,11 +30,29 @@ Module.prototype.load = function(){
 Module._extensions = {}
 
 Module._extensions['.js'] = function (module) {
+    const content = fs.readFileSync(module.id,'utf8')
 
+    let fn = vm.compileFunction(content,[
+        'exports','require','module','__filename','__dirname'
+    ])
+
+    let exports = module.exports
+
+    let thisValue = exports
+
+    let dirname = path.dirname(module.id)
+    // 函数执行的时候会自动给module.exports赋值
+
+    Reflect.apply(fn,thisValue,[exports,req,module,module.id,dirname])// 如果用户没有写module.exports 那么值依然为空
+
+    console.log(fn.toString())
 }
 
 Module._extensions['.json'] = function (module) {
+    const content = fs.readFileSync(module.id,'utf8')
 
+    // json是直接将结果赋予module.exports
+    module.exports = JSON.parse(content)
 }
 
 Module._resolveFilename = function(id){
@@ -62,4 +81,6 @@ function req(id) {
     return module.exports
 }
 
-const r = req('./a')
+const r = req('./a.json')
+
+console.log(r)
