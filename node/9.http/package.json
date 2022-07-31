@@ -1,9 +1,8 @@
 {
-  "name": "node",
+  "name": "9.http",
   "version": "1.0.0",
   "description": "",
-  "main": "tpl.js",
-  "bin":"bin/www",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,8 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "co": "^4.6.0",
-    "cross-env": "^7.0.3",
-    "promises-aplus-tests": "^2.1.2"
+    "@types/node": "^18.0.3",
+    "chalk": "4"
   }
 }
