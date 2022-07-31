@@ -97,11 +97,6 @@ export function trackEffects(deps){
 }
 
 export function effect(fn, options = {} as any) {
-
-
-
-
-
     // 将用户传递的函数编程响应式的effect
     const _effect = new ReactiveEffect(fn,options.scheduler);
     // 更改runner中的this
